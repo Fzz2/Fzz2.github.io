@@ -1,0 +1,190 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+<meta name="description" content="" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>代码审计--SQL注入漏洞 | 学习之路</title>
+<link rel="shortcut icon" href="https://Fzz2.github.io/favicon.ico?v=1556507088205">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://Fzz2.github.io/styles/main.css">
+
+<script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
+
+  </head>
+  <body>
+    <div class="main">
+      <div class="main-content">
+        <div class="site-header">
+  <a href="https://Fzz2.github.io">
+  <img class="avatar" src="https://Fzz2.github.io/images/avatar.png?v=1556507088205" alt="">
+  </a>
+  <h1 class="site-title">
+    学习之路
+  </h1>
+  <p class="site-description">
+    一个人的学习历程
+  </p>
+  <div class="menu-container">
+    
+      
+        <a href="/" class="menu">
+          首页
+        </a>
+      
+    
+      
+        <a href="/archives" class="menu">
+          归档
+        </a>
+      
+    
+      
+        <a href="/tags" class="menu">
+          标签
+        </a>
+      
+    
+      
+        <a href="/post/about" class="menu">
+          关于
+        </a>
+      
+    
+  </div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+</div>
+
+      
+        <div class="post-detail">
+          <article class="post">
+            <h2 class="post-title">
+              代码审计--SQL注入漏洞
+            </h2>
+            <div class="post-info">
+              <time class="post-time">
+                · 2019-04-29 ·
+              </time>
+              
+                <a href="https://Fzz2.github.io/tag/sql_inject" class="post-tags">
+                  # sql注入
+                </a>
+              
+                <a href="https://Fzz2.github.io/tag/code_audit" class="post-tags">
+                  # 代码审计
+                </a>
+              
+            </div>
+            
+            <div class="post-content">
+              <h4 id="sql注入漏洞原理">SQL注入漏洞原理</h4>
+<p>由于开发者在编写数据库操作代码时，直接将外部可控的参数拼接到sql语句中，没有经过任何过滤就直接放入数据库引擎执行。</p>
+<h4 id="挖掘经验">挖掘经验</h4>
+<h5 id="普通注入">普通注入</h5>
+<p>最容易利用的sql注入漏洞，比如直接通过union查询就可以查询数据库。普通注入有int型和string型。可通过查找数据库操作的一些关键字如：<code>select from</code>、<code>mysql_connect</code>、<code>mysql_query</code>、<code>mysql_fetch_row</code>、<code>update</code>、<code>insert</code>、<code>delete</code>等定向挖掘sql注入漏洞。</p>
+<h5 id="编码注入">编码注入</h5>
+<p>在做编码处理时，如果输入转码函数不兼容的特殊字符，就会导致输出的字符变成有害数据。在sql注入里，最常见的编码注入是mysql宽子节以及<code>urldecode/rawurldecode</code>函数导致的。</p>
+<h6 id="宽子节注入">宽子节注入</h6>
+<p>在使用PHP连接mysql的时候，当设置<code>set character_set_client=gbk</code>时会导致宽子节注入。当存在宽子节注入时，注入参数里带入<code>%df%27</code>，即可把程序中过滤的<code>\</code>(<code>%5c</code>)吃掉</p>
+<p>修复方法：</p>
+<ul>
+<li>在执行查询之前先执行<code>SET NAMES 'gbk',character_set_client=binary</code>设置<code>character_set_client</code>为<code>binary</code>。</li>
+<li>使用<code>pdo</code>方式，在<code>php5.3.6</code>及以下版本需要设置<code>setArribute(PDO::ATTR_EMULATE_PREPARES,false);</code>来禁用<code>prepared statements</code>的仿真效果。</li>
+</ul>
+<p>挖掘方法：
+搜索如下关键字即可：</p>
+<ul>
+<li><code>SET NAME</code></li>
+<li><code>character_set_client=gbk</code></li>
+<li><code>mysql_set_charset('gbk')</code></li>
+</ul>
+<h6 id="二次urldecode注入">二次urldecode注入</h6>
+<p>如果某处使用了<code>urldecode</code>或者<code>rawurldecode</code>函数，则会导致二次解码生成单引号而引发注入。我们提交参数到WebServer时，WebServer会自动解码一次，假设目标开启了GPC，我们提交<code>/1.php?id=1%2527</code>因为我们提交的参数里没有单引号，所以第一次解码后的结果是<code>id=1%27</code>，<code>%25</code>解码的结果是<code>%</code>，如果程序里面使用了<code>urldecode</code>或者<code>rawurldecod</code>函数来解码id参数，解码后的结果是<code>id=1'</code>单引号成功出现引发注入。</p>
+<p>挖掘方法：
+搜索<code>urldecode</code>和<code>rawurldecode</code>函数来挖掘二次urldecode注入漏洞。</p>
+<h4 id="漏洞防范">漏洞防范</h4>
+<h5 id="gpcruntime魔术引号">gpc/runtime魔术引号</h5>
+<ul>
+<li>magic_quotes_gpc 负责对GET、POST、COOKIE的值进行过滤</li>
+<li>magic_quotes_runtime 对从数据库或者文件中获取的数据进行过滤</li>
+</ul>
+<p>这种方法只对单引号、双引号、反斜杠以及空字符NULL进行过滤，在int型的注入上没有多大作用的。</p>
+<p><code>PHP4.2.3</code>以及之前的版本可以在任何地方设置开启，即配置文件和代码中，之后的版本可以在<code>php.ini</code>、<code>httpd.conf</code>、<code>.htaccess</code>中开启。</p>
+<h5 id="过滤函数">过滤函数</h5>
+<ul>
+<li>addslashes函数 对单引号、双引号、反斜杠和空字符NULL进行过滤，参数必须是<code>string</code>类型，如果输入的参数是数组的话，会出现绕过的情况。</li>
+<li>mysql_[real_]escape_string函数 PHP4.0.3以上版本才能使用，对<code>[\x00][\n][\r][\]['][&quot;][\x1a]</code>有影响，推荐使用<code>mysql_real_escape_string</code>，它接受一个连接句柄并根据当前字符集转义字符串。</li>
+</ul>
+<h5 id="intval等字符串转换">intval等字符串转换</h5>
+<p>以上方法对int型注入的效果并不好，可以通过报错或者盲注绕过。intval可以将变量转换为int类型。(floatval)</p>
+<h5 id="pdo-prepare预编译">PDO prepare预编译</h5>
+<p>通过预编译的方式来处理数据库查询，使用<code>ATTR_EMULATE_PREPARES</code>来禁用PHP的本地模拟prepare。</p>
+
+            </div>
+          </article>
+        </div>
+    
+        
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="https://Fzz2.github.io/post/baJ44XRSm">
+              <h3 class="post-title">
+                代码审计学习笔记-通用代码审计思路
+              </h3>
+            </a>
+          </div>  
+        
+
+        
+          
+            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: '1ce8a8569a1187754079',
+    clientSecret: '321f1af0d2d56f3d649f925f33f6287e71bdcbf0',
+    repo: 'Fzz2.github.io',
+    owner: 'Fzz2',
+    admin: ['Fzz2'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false  // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+          
+
+          
+        
+    
+        <div class="site-footer">
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+      </div>
+    </div>
+  </body>
+</html>
