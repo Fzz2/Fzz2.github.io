@@ -1,92 +1,107 @@
+
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8" />
-<meta name="description" content="" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+    
+<meta charset="utf-8" >
+
 <title>代码审计学习笔记-通用代码审计思路 | 学习之路</title>
-<link rel="shortcut icon" href="https://Fzz2.github.io/favicon.ico?v=1556507088205">
+<meta name="description" content="一个人的学习历程">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://Fzz2.github.io/favicon.ico?v=1556507330477">
 <link rel="stylesheet" href="https://Fzz2.github.io/styles/main.css">
 
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
-<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
 
 
   </head>
   <body>
-    <div class="main">
-      <div class="main-content">
-        <div class="site-header">
-  <a href="https://Fzz2.github.io">
-  <img class="avatar" src="https://Fzz2.github.io/images/avatar.png?v=1556507088205" alt="">
-  </a>
-  <h1 class="site-title">
-    学习之路
-  </h1>
-  <p class="site-description">
-    一个人的学习历程
-  </p>
-  <div class="menu-container">
-    
-      
-        <a href="/" class="menu">
-          首页
-        </a>
-      
-    
-      
-        <a href="/archives" class="menu">
-          归档
-        </a>
-      
-    
-      
-        <a href="/tags" class="menu">
-          标签
-        </a>
-      
-    
-      
-        <a href="/post/about" class="menu">
-          关于
-        </a>
-      
-    
-  </div>
-  <div class="social-container">
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://Fzz2.github.io">
+        <img class="avatar" src="https://Fzz2.github.io/images/avatar.png?v=1556507330477" alt="" width="32px" height="32px">
+      </a>
+      <a href="https://Fzz2.github.io">
+        <h1 class="site-title">学习之路</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i class="icon" :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }" @click="menuVisible = !menuVisible"></i>
+      </transition>
+    </div>
   </div>
 </div>
 
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
       
+        
+          <a href="/" class="menu purple-link">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="menu purple-link">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="menu purple-link">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="menu purple-link">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
         <div class="post-detail">
-          <article class="post">
-            <h2 class="post-title">
-              代码审计学习笔记-通用代码审计思路
-            </h2>
-            <div class="post-info">
-              <time class="post-time">
-                · 2019-04-23 ·
-              </time>
-              
-                <a href="https://Fzz2.github.io/tag/code_audit" class="post-tags">
-                  # 代码审计
-                </a>
-              
-            </div>
+          
+          <h2 class="post-title">代码审计学习笔记-通用代码审计思路</h2>
+          <div class="post-info post-detail-info">
+            <span><i class="icon-calendar-outline"></i> 2019-04-23</span>
             
-            <div class="post-content">
-              <p>代码审计是企业安全运营以及安全从业者必备的基础能力。学习好代码审计对自己的渗透测试思路是很有帮助的，以前也陆陆续续学习过代码审计，但都只是零散的一些知识，从今天开始，从头开始学习代码审计，并且每学习一种漏洞都进行实例的分析，记录在博客里，锻炼自己归纳总结输出的能力。<strong>本次的学习资料是seay法师的代码审计--企业级Web代码审计安全架构。</strong></p>
+              <span>
+                <i class="icon-pricetags-outline"></i>
+                
+                  <a href="https://Fzz2.github.io/tag/code_audit">
+                    代码审计
+                    
+                  </a>
+                
+              </span>
+            
+          </div>
+          <div class="post-content">
+            <p>代码审计是企业安全运营以及安全从业者必备的基础能力。学习好代码审计对自己的渗透测试思路是很有帮助的，以前也陆陆续续学习过代码审计，但都只是零散的一些知识，从今天开始，从头开始学习代码审计，并且每学习一种漏洞都进行实例的分析，记录在博客里，锻炼自己归纳总结输出的能力。<strong>本次的学习资料是seay法师的代码审计--企业级Web代码审计安全架构。</strong></p>
 <h2 id="通用代码审计思路">通用代码审计思路</h2>
 <h3 id="敏感函数回溯参数过程">敏感函数回溯参数过程</h3>
 <p>根据敏感函数来逆向追踪参数的传递过程，另外非函数使用不当的漏洞如sql注入，可以根据sql语句的特征来分析是否存在漏洞，像<code>HTTP_CLIENT_IP</code>和<code>HTTP_X_FORWORDFOR</code>等获取ip的地址没有经过过滤直接拼接到sql语句中，并且它们是在<code>$_SERVER</code>变量中不受GPC影响。</p>
@@ -113,49 +128,78 @@
 <li>找回密码功能 任意用户密码重置、验证码爆破</li>
 </ul>
 
-            </div>
-          </article>
+          </div>
         </div>
+
+        
+      </div>
+
+      
+        
+          <div id="gitalk-container"></div>
+        
+
+        
+      
+
+      <div class="site-footer">
+  <div class="slogan">一个人的学习历程</div>
+  <div class="social-container">
     
-        
-
-        
-          
-            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
-<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
-
-<div id="gitalk-container"></div>
-
-<script>
-
-  var gitalk = new Gitalk({
-    clientID: '1ce8a8569a1187754079',
-    clientSecret: '321f1af0d2d56f3d649f925f33f6287e71bdcbf0',
-    repo: 'Fzz2.github.io',
-    owner: 'Fzz2',
-    admin: ['Fzz2'],
-    id: location.pathname,      // Ensure uniqueness and length less than 50
-    distractionFreeMode: false  // Facebook-like distraction free mode
-  })
-
-  gitalk.render('gitalk-container')
-
-</script>
-
-          
-
-          
-        
+      
     
-        <div class="site-footer">
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
   Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
 </div>
 
-<script>
-  hljs.initHighlightingOnLoad()
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
 </script>
 
-      </div>
-    </div>
+
+  
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: '1ce8a8569a1187754079',
+        clientSecret: '321f1af0d2d56f3d649f925f33f6287e71bdcbf0',
+        repo: 'Fzz2.github.io',
+        owner: 'Fzz2',
+        admin: ['Fzz2'],
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
   </body>
 </html>

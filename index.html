@@ -1,58 +1,153 @@
+
 <html>
   <head>
-    <meta charset="utf-8" />
-<meta name="description" content="" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+    
+<meta charset="utf-8" >
+
 <title>学习之路</title>
-<link rel="shortcut icon" href="https://Fzz2.github.io/favicon.ico?v=1556507088205">
+<meta name="description" content="一个人的学习历程">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://Fzz2.github.io/favicon.ico?v=1556507330477">
 <link rel="stylesheet" href="https://Fzz2.github.io/styles/main.css">
 
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
-<script src="https://cdn.bootcss.com/moment.js/2.23.0/moment.min.js"></script>
+
 
 
   </head>
   <body>
-    <div class="main">
-      <div class="main-content">
-        <div class="site-header">
-  <a href="https://Fzz2.github.io">
-  <img class="avatar" src="https://Fzz2.github.io/images/avatar.png?v=1556507088205" alt="">
-  </a>
-  <h1 class="site-title">
-    学习之路
-  </h1>
-  <p class="site-description">
-    一个人的学习历程
-  </p>
-  <div class="menu-container">
-    
-      
-        <a href="/" class="menu">
-          首页
-        </a>
-      
-    
-      
-        <a href="/archives" class="menu">
-          归档
-        </a>
-      
-    
-      
-        <a href="/tags" class="menu">
-          标签
-        </a>
-      
-    
-      
-        <a href="/post/about" class="menu">
-          关于
-        </a>
-      
-    
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://Fzz2.github.io">
+        <img class="avatar" src="https://Fzz2.github.io/images/avatar.png?v=1556507330477" alt="" width="32px" height="32px">
+      </a>
+      <a href="https://Fzz2.github.io">
+        <h1 class="site-title">学习之路</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i class="icon" :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }" @click="menuVisible = !menuVisible"></i>
+      </transition>
+    </div>
   </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+      
+        
+          <a href="/" class="menu purple-link">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="menu purple-link">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="menu purple-link">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="menu purple-link">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        
+        
+<section class="post-item">
+    <div class="content">
+      <a href="https://Fzz2.github.io/post/v5r7rC63n">
+        <h2 class="post-title">代码审计--SQL注入漏洞</h2>
+      </a>
+      <div class="post-abstract">
+        
+      </div>
+      <div class="post-info">
+        <span><i class="icon icon-calendar-outline"></i> 2019-04-29</span>
+        
+          <span>
+            <i class="icon icon-pricetags-outline"></i>
+            
+              <a href="https://Fzz2.github.io/tag/sql_inject">
+                sql注入
+                
+                  ，
+                
+              </a>
+            
+              <a href="https://Fzz2.github.io/tag/code_audit">
+                代码审计
+                
+              </a>
+            
+          </span>
+        
+      </div>
+    </div>
+    
+  </section>
+
+<section class="post-item">
+    <div class="content">
+      <a href="https://Fzz2.github.io/post/baJ44XRSm">
+        <h2 class="post-title">代码审计学习笔记-通用代码审计思路</h2>
+      </a>
+      <div class="post-abstract">
+        
+      </div>
+      <div class="post-info">
+        <span><i class="icon icon-calendar-outline"></i> 2019-04-23</span>
+        
+          <span>
+            <i class="icon icon-pricetags-outline"></i>
+            
+              <a href="https://Fzz2.github.io/tag/code_audit">
+                代码审计
+                
+              </a>
+            
+          </span>
+        
+      </div>
+    </div>
+    
+  </section>
+
+
+<div class="pagination-container">
+  
+  
+</div>
+
+
+      </div>
+
+      <div class="site-footer">
+  <div class="slogan">一个人的学习历程</div>
   <div class="social-container">
     
       
@@ -66,73 +161,26 @@
       
     
   </div>
-</div>
-
-    
-        <div class="post-container">
-  
-    <article class="post">
-      <a href="https://Fzz2.github.io/post/v5r7rC63n">
-        <h2 class="post-title">代码审计--SQL注入漏洞</h2>
-      </a>
-      <div class="post-info">
-        <time class="post-time">
-          · 2019-04-29 ·
-        </time>
-        
-          <a href="https://Fzz2.github.io/tag/sql_inject" class="post-tag">
-            # sql注入
-          </a>
-        
-          <a href="https://Fzz2.github.io/tag/code_audit" class="post-tag">
-            # 代码审计
-          </a>
-        
-      </div>
-      
-      <div class="post-abstract">
-        
-      </di>
-    </article>
-  
-    <article class="post">
-      <a href="https://Fzz2.github.io/post/baJ44XRSm">
-        <h2 class="post-title">代码审计学习笔记-通用代码审计思路</h2>
-      </a>
-      <div class="post-info">
-        <time class="post-time">
-          · 2019-04-23 ·
-        </time>
-        
-          <a href="https://Fzz2.github.io/tag/code_audit" class="post-tag">
-            # 代码审计
-          </a>
-        
-      </div>
-      
-      <div class="post-abstract">
-        
-      </di>
-    </article>
-  
-</div>
-
-    
-        <div class="pagination-container">
-  
-  
-</div>
-
-    
-        <div class="site-footer">
   Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a>
 </div>
 
-<script>
-  hljs.initHighlightingOnLoad()
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
 </script>
 
-      </div>
-    </div>
+
+
+
   </body>
 </html>
